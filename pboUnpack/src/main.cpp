@@ -14,20 +14,24 @@
 // in order to get function prototypes from glext.h, define GL_GLEXT_PROTOTYPES before including glext.h
 #define GL_GLEXT_PROTOTYPES
 
+// GLEW seems to need to be defined before freeglut.
+#define GLEW_STATIC // This doesn't seem to be working ATM
+#include <Graphics/OpenGL/glew.h> // Replace glext with GLEW
+
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #else
-#include <GL/glut.h>
+#define FREEGLUT_STATIC 
+#include <Graphics/OpenGL/freeglut.h>
 #endif
 
-#include "glext.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <cstdlib>
 #include <cstring>
-#include "glInfo.h"                             // glInfo struct
-#include "Timer.h"
+#include "glInfo.cpp"                             // glInfo struct
+#include "Timer.cpp"
 
 using std::stringstream;
 using std::cout;
@@ -62,8 +66,8 @@ void printTransferRate();
 
 
 // constants
-const int    SCREEN_WIDTH    = 400;
-const int    SCREEN_HEIGHT   = 300;
+const int    SCREEN_WIDTH    = 1000;
+const int    SCREEN_HEIGHT   = 1000;
 const float  CAMERA_DISTANCE = 3.0f;
 const int    TEXT_WIDTH      = 8;
 const int    TEXT_HEIGHT     = 13;
@@ -131,7 +135,7 @@ int main(int argc, char **argv)
     // get OpenGL info
     glInfo glInfo;
     glInfo.getInfo();
-    //glInfo.printSelf();
+    glInfo.printSelf();
 
     // init 2 texture objects
     glGenTextures(1, &textureId);
@@ -221,7 +225,8 @@ int initGLUT(int argc, char **argv)
     // it is called before any other GLUT routine
     glutInit(&argc, argv);
 
-    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_ALPHA); // display mode
+   // update for freeGLUT
+   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);   
 
     glutInitWindowSize(400, 300);               // window size
 
@@ -411,7 +416,8 @@ void setCamera(float posX, float posY, float posZ, float targetX, float targetY,
     gluLookAt(posX, posY, posZ, targetX, targetY, targetZ, 0, 1, 0); // eye(x,y,z), focal(x,y,z), up(x,y,z)
 }
 
-
+// Add RNG to pixel update to increase the load.
+#include <Math/Random/GlobalRandom.hpp>
 
 ///////////////////////////////////////////////////////////////////////////////
 // copy an image data to texture buffer
@@ -430,7 +436,8 @@ void updatePixels(GLubyte* dst, int size)
     {
         for(int j = 0; j < IMAGE_WIDTH; ++j)
         {
-            *ptr = color;
+            //*ptr = color;
+            *ptr = Random::randomInt(255);
             ++ptr;
         }
         color += 257;   // add an arbitary number (no meaning)
