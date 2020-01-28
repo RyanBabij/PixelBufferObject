@@ -15,5 +15,3 @@ For some reason I'm unable to static link GLEW, so I'll bundle the dll in the re
 I've only tested this code on Windows, it will likely require some work to get working on other OSs.
 
 The code throws a lot of warnings which I am not interested in fixing atm.
-
-Probably only works on Windows.
